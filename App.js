@@ -1,14 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 import Memories from './memories';
-import Journal from './journal';
+import Journal from './components/journal/journal';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import WorkoutTimer from './workouttimer';
-import Workouts from './workouts';
+import WorkoutTimer from './components/workouts/workouttimer';
+import Workouts from './components/workouts/workouts';
 import Timer from './timer';
 import Login from './login';
-import WorkoutJournal from './workoutjournal';
+import WorkoutJournal from './components/workouts/workoutjournal';
 import { auth } from './firebase';
 import SignUp from './signup';
 import Onboarding from './onboarding';
@@ -17,9 +17,16 @@ import { onAuthStateChanged } from "firebase/auth";
 import { db } from './firebase';
 import { useEffect } from 'react';
 import {doc, getDoc} from "firebase/firestore";
-import HeadacheLog from './headacheLog';
-import HeadacheTracker from './headacheTracker';
+import HeadacheLog from './components/headache/headacheLog';
+import HeadacheTracker from './components/headache/headacheTracker';
 import Todo from './todo';
+import "@expo/metro-runtime";
+import JournalEntries from './components/journal/journalEntries';
+import JournalLogHome from './components/journal/journalLogHome';
+import HeadacheInfo from './components/headache/headacheInfo';
+import { Alert } from 'react-native-web';
+import WorkoutLogs from './components/workouts/workoutLogs';
+import WorkoutInfo from './components/workouts/workoutLogInfo';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,7 +36,9 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Memories" component={Memories} />
-        <Stack.Screen name="Journal" component={Journal} />
+         <Stack.Screen name="Journal" component={Journal} />
+        <Stack.Screen name="JournalEntries" component={JournalEntries} />
+        <Stack.Screen name="JournalLogHome" component={JournalLogHome} />
         <Stack.Screen name="Workouts" component={Workouts} />
         <Stack.Screen name="WorkoutTimer" component={WorkoutTimer} />
         <Stack.Screen name="WorkoutJournal" component={WorkoutJournal} />
@@ -39,6 +48,9 @@ export default function App() {
         <Stack.Screen name="Onboarding" component={Onboarding} />
         <Stack.Screen name="Headache" component={HeadacheLog} />
         <Stack.Screen name="Headache Tracker" component={HeadacheTracker} />
+        <Stack.Screen name="HeadacheInfo" component={HeadacheInfo} />
+        <Stack.Screen name="WorkoutLogs" component={WorkoutLogs}/>
+        <Stack.Screen name="WorkoutInfo" component={WorkoutInfo} />
         <Stack.Screen name="Todo" component={Todo} />
       </Stack.Navigator>
     </NavigationContainer>
@@ -96,22 +108,36 @@ function Home({navigation}) {
   if(signedIn) {
     return(
       <View style={{ flex:1, justifyContent: 'space-evenly', alignItems: 'center', backgroundColor: '#b4cebd' }}>
-      <Text style={{fontSize:100}}>title</Text>
-      <Button title="Memories" color='#172c42' onPress={()=>navigation.navigate('Memories')}/>
-      <Button title="Journal" color='#172c42' onPress={()=>navigation.navigate('Journal')}/>
-      <Button title="Workouts" color='#172c42' onPress={()=>navigation.navigate('Workouts')}/>
-      <Button title="Headache Tracker" color='#172c42' onPress={()=>navigation.navigate('Headache Tracker', {headacheFields})}/>
-      <Button title="Todo" color='#172c42' onPress={()=>navigation.navigate('Todo')}/>
-      <Button title="Logout" color='#172c42' onPress={()=>auth.signOut()}/>
+      <Text style={{fontSize:80}}>wellnesium</Text>
+      {/* <Button title="Memories" color='#172c42' onPress={()=>navigation.navigate('Memories')}/> */}
+      <TouchableOpacity onPress={()=>{navigation.navigate("Journal", {journalMorningFields: journalMorningFields, journalNightFields: journalNightFields})}} style={styles.button}>
+        <Text style={styles.buttonText}>Journal</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate('Workouts', {workoutFields})} style={styles.button}>
+        <Text style={styles.buttonText}>Workouts</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate('Headache Tracker', {headacheFields})} style={styles.button}>
+        <Text style={styles.buttonText}>Headache Tracker</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate('Todo')} style={styles.button}>
+        <Text style={styles.buttonText}>Todo</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>auth.signOut()} style={styles.button}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
       </View>
     )
   }
   else {
     return(
       <View style={{ flex:1, justifyContent: 'space-evenly', alignItems: 'center', backgroundColor: '#b4cebd' }}>
-      <Text style={{fontSize:100}}>title</Text>
-      <Button title="Login" color='#172c42' onPress={()=>navigation.navigate('Login')}/>
-      <Button title="Signup" color='#172c42' onPress={()=>navigation.navigate('Signup')}/>
+      <Text style={{fontSize:80}}>wellnesium</Text>
+      <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>navigation.navigate('Signup')} style={styles.button}>
+        <Text style={styles.buttonText}>Signup</Text>
+      </TouchableOpacity>
       </View>
     )
   }
@@ -129,5 +155,10 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
   },
 });

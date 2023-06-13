@@ -1,14 +1,11 @@
 import { db } from "./firebase";
 import { doc, addDoc, setDoc, getDoc, getDocs, collection } from "firebase/firestore"; 
 import { useState, useEffect } from 'react';
-import { Text, ScrollView, StyleSheet, View, TouchableOpacity, TextInput } from "react-native";
-import TimePicker from 'react-time-picker'
-import RadioGroup from 'react-native-radio-buttons-group'; 
-import MultiSelect from 'react-native-multiple-select';
+import { Text, ScrollView, StyleSheet, View, TouchableOpacity, TextInput, Alert } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from './firebase';
+import { auth } from "./firebase";
 import { CheckBox } from 'react-native-elements'
-
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 export default function Todo({route, navigation}) {
@@ -25,52 +22,115 @@ export default function Todo({route, navigation}) {
         const todo = {
             title: add,
             completed: false,
-            id: id,
+            priority: false,
         };
-        todos.push(todo);
+        let temp = [...todos]
+        temp.push(todo);
+        setToDos(temp);
         addInfo();
+        setAdd("");
     }
     const addInfo = () => {
+        if(add !== "") {
         try{
-            const docRef = setDoc(doc(db, "todos", id), {
-                todos
+            const data = {
+                title: add,
+                completed: false,
+                priority: false,
+            } 
+            const docRef = addDoc(collection(db, "users", id, "todos"), {
+                data
         })
+        fetchData();
     }
         catch(e) {
             console.error(e);
         }
     }
+    }
     const handleChange = (index) => {
         let temp = [...todos];
         temp[index].completed = !temp[index].completed;
         setToDos(temp);
-        addInfo(); 
+        updateInfo(index); 
     }
-
-    useEffect(()=>{
-        async function fetchData() {
-            const querySnapshot = await getDocs(collection(db, "todos"));
-            let temp = [];
-            querySnapshot.forEach((doc) => {
-                if(doc.data().todos[0].id === id){
-                    temp = doc.data().todos;
-                    setToDos(temp);
-                }
-            });
+    const handlePriorityChange = (index) => {
+        let temp = [...todos];
+        temp[index].priority = !temp[index].priority;
+        setToDos(temp);
+        updateInfo(index); 
+    }
+    const updateInfo = (index) => {
+    //    Alert.alert(JSON.stringify(todos[index]))
+        const data = {
+            title: todos[index].title,
+            completed: todos[index].completed,
+            priority: todos[index].priority,
         }
+        const docRef = setDoc(doc(db, "users", id, "todos", todos[index].id), {
+            data
+        })
+    }
+    async function fetchData() {
+        const querySnapshot = await getDocs(collection(db, "users", id, "todos"));
+        const temp = [];
+        querySnapshot.forEach((doc) => {
+            temp.push({completed: doc.data().data.completed, title: doc.data().data.title, id: doc.id, priority: doc.data().data.priority});
+        });
+        setToDos(temp);   
+    }
+    useEffect(()=>{
             fetchData();
     }, [id])
     
     return(
         <View style={styles.container}>
+        <ScrollView
+            contentContainerStyle={{
+                display: "flex",
+                flexDirection: "column",
+            }}
+            keyboardDismissMode="on-drag"
+        >
         <View style={styles.buttonContainer}>
         </View>
         
         {todos && todos.map((todo, index) =>
         {
-            console.log(todo);
+            if(!todo.completed && todo.priority) {
+            return(
+            <View style={{display:"flex", flexDirection: "row", alignContent: "center", justifyContent: "center"}}>
+            {todo.priority ? <Icon name={'star'} style={[styles.myStarStyle]} size={20} onPress={()=>{handlePriorityChange(index)}}/> : <Icon name={'star-outline'} size={20} style={[styles.myStarStyle, styles.myEmptyStarStyle]} onPress={()=>{handlePriorityChange(index)}}/> }
+            <CheckBox
+                title={todo.title}
+                checked={todo.completed}
+                onPress={()=>{
+                    handleChange(index);
+                }}
+            />
+            </View>
+        )}})}
+        {todos && todos.map((todo, index) =>
+        {
+            if(!todo.completed && !todo.priority) {
+            return(
+            <View style={{display:"flex", flexDirection: "row", alignContent: "center", justifyContent: "center"}}>
+            {todo.priority ? <Icon name={'star'} style={[styles.myStarStyle]} size={20} onPress={()=>{handlePriorityChange(index)}}/> : <Icon name={'star-outline'} size={20} style={[styles.myStarStyle, styles.myEmptyStarStyle]} onPress={()=>{handlePriorityChange(index)}}/> }
+            <CheckBox
+                title={todo.title}
+                checked={todo.completed}
+                onPress={()=>{
+                    handleChange(index);
+                }}
+            />
+            </View>
+        )}})}
+        {todos && todos.map((todo, index) =>
+        {
+            if(todo.completed)
             return(
             <CheckBox
+                key={index}
                 title={todo.title}
                 checked={todo.completed}
                 onPress={()=>{
@@ -80,14 +140,14 @@ export default function Todo({route, navigation}) {
         )}
             )
         }
-        <div className='form'>
-            <TextInput variant='standard' label='Add Todo' type='text' value={add} onChangeText={setAdd} className='textfield' size='medium' style={{borderWidth:'2'}}
+            <TextInput variant='standard' label='Add Todo' type='text' value={add} placeholder="add a task" onChangeText={setAdd} className='textfield' size='medium' style={styles.textInput}
             />
+            <View style={{justifyContent: "center", justifyText: "center"}}>
             <TouchableOpacity onPress={createTodo} disabled={add.length===0}>
                 <Text style={styles.buttonText}>add</Text>
             </TouchableOpacity>
-        </div>
-        
+            </View>
+            </ScrollView>
         </View>
     )
 }
@@ -112,7 +172,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     textInput: {
-        
+        height: 40,
+        margin: 12,
+        borderWidth: 1,
+        padding: 10, 
     },
     buttonContainer: {
         width: "60%",
@@ -126,6 +189,8 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         alignItems: "center",
+        borderColor: "#172c42",
+        borderWidth: 2,
       },
       buttonOutline: {
         backgroundColor: "white",
@@ -143,4 +208,14 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 16,
       },
+      myStarStyle: {
+        color: '#FDFD96',
+        backgroundColor: 'transparent',
+        textShadowColor: 'black',
+        textShadowOffset: {width: 1, height: 1},
+        textShadowRadius: 2,
+      },
+      myEmptyStarStyle: {
+        color: 'white',
+      }
   });

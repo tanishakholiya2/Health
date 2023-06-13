@@ -1,7 +1,7 @@
 import React from 'react';
 import { auth } from './firebase';
 import { db } from './firebase';
-import { TextInput, Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { TextInput, Text, TouchableOpacity, StyleSheet, View, Alert } from 'react-native';
 import { NavigationScreenProp, NavigationParams } from "react-navigation";
 import { NavigationState, RouteProp } from "@react-navigation/native";
 import { onAuthStateChanged } from "firebase/auth";
@@ -25,8 +25,6 @@ export default function Onboarding({navigation}) {
             setSignedIn(true);
             setId(uid);
             setEmail(user.email);
-            console.log('logged in');
-            console.log(id);
         } else {
             setSignedIn(false);
             setId("");
@@ -35,16 +33,16 @@ export default function Onboarding({navigation}) {
       });
     
 
-    const addInfo = () => {
+    const addInfo = async () => {
         try{
-            const docRef = setDoc(doc(db, "users", id), {
+            const docRef = await setDoc(doc(db, "users", id), {
             firstName: firstName,
             lastName: lastName,
             age: age,
             email: email,
             mentalHealth: mental,
             physicalHealth: physical,
-        })
+        }).then(navigation.navigate("Home"))
     }
         catch(e) {
             console.error(e);
@@ -52,12 +50,11 @@ export default function Onboarding({navigation}) {
     }
 
     const write = () => {
-        console.log(id);
         addInfo()
     }
 
     return(
-        <>
+        <View style={styles.container}>
           <Text style={styles.text}> First Name </Text>
           <TextInput 
             placeholder="Enter name"
@@ -85,7 +82,7 @@ export default function Onboarding({navigation}) {
                 <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
             </View>
-        </>
+        </View>
     )
 }
 

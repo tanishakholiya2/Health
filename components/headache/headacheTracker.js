@@ -1,13 +1,9 @@
-import { db } from "./firebase";
+import { db } from "../../firebase";
 import { doc, addDoc, setDoc, getDoc, getDocs, collection } from "firebase/firestore"; 
 import { useState, useEffect } from 'react';
-import { Text, ScrollView, StyleSheet, View, TouchableOpacity } from "react-native";
-import TimePicker from 'react-time-picker'
-import RadioGroup from 'react-native-radio-buttons-group'; 
-import MultiSelect from 'react-native-multiple-select';
+import { Text, ScrollView, StyleSheet, View, TouchableOpacity, Alert } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from './firebase';
-
+import { auth } from '../../firebase';
 
 export default function HeadacheTracker({route, navigation}) {
     const [headaches, setHeadaches] = useState([]);
@@ -20,42 +16,53 @@ export default function HeadacheTracker({route, navigation}) {
         }
       });
 
-    const getHeadaches = async () => {
-        const querySnapshot = await getDocs(collection(db, "logs"));
+      const getEntries = async () => {
+        const querySnapshot = await getDocs(collection(db, "users", id, "logs"));
         const temp = [...headaches];
         querySnapshot.forEach((doc) => {
-            if(doc.get('id') === id){
-                temp.push(doc.data());
-                setHeadaches(temp);
-            }
+            temp.push(doc.data().data);
         });
+        setHeadaches(temp);      
     }
 
     useEffect(()=>{
-        getHeadaches()
+        getEntries()
     }, [id, db])
+
+    const merge = (arr) => {
+        let merged = "";
+        arr.map((val)=>{
+            merged += val.value + ', '
+        })
+        return merged
+    }
     
     return(
         <View style={styles.container}>
+        <ScrollView
+                contentContainerStyle={{
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+                keyboardDismissMode="on-drag"
+                automaticallyAdjustKeyboardInsets={true}
+            >
         <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={()=>{navigation.navigate("Headache", {headacheFields})}} style={styles.button}>
-            <Text style={styles.buttonText}>Log Headache</Text>
+            <Text style={styles.buttonText}> Log Headache </Text>
         </TouchableOpacity>
         </View>
         
-        {headaches.map((headache) => {
-            console.log(headache);
+        {headaches.map((headache, index) => {
+
             return(
-                <div>
-                    <h2> {headache.date} </h2>
-                    <p> {headache.startTime} </p>
-                    <p> {headache.endTime} </p>
-                    <p> {headache.position} </p>
-                </div>
+                <TouchableOpacity onPress={()=>{navigation.navigate("HeadacheInfo", {headache})}} style={styles.button}>
+                    <Text style={styles.buttonText}>{headache.date} </Text>
+                </TouchableOpacity>
             )
         })
         }
-        
+        </ScrollView>
         </View>
     )
 }
@@ -79,17 +86,17 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     buttonContainer: {
-        width: "60%",
         justifyContent: "center",
         alignItems: "center",
         marginTop: 5,
       },
       button: {
         backgroundColor: "#172c42",
-        width: "100%",
         padding: 15,
         borderRadius: 10,
         alignItems: "center",
+        marginTop: 5,
+        marginHorizontal: 10,
       },
       buttonOutline: {
         backgroundColor: "white",

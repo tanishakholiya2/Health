@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextInput, TouchableOpacity, Text, View, StyleSheet } from 'react-native';
+import { TextInput, TouchableOpacity, Text, View, StyleSheet, Alert } from 'react-native';
 import { auth } from './firebase';
 import { useState } from 'react';
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -12,12 +12,17 @@ export default function SignUp({navigation}) {
     await createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
-            console.log(user);
+            navigation.navigate("Onboarding")
         })
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-    }).then(navigation.navigate("Onboarding"));
+            Alert.alert(errorMessage);
+    })
+    }
+
+    const checkEmail = () => {
+      
     }
 
     return(

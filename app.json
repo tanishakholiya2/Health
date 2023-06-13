@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "wellness222",
-    "slug": "wellness222",
+    "name": "Wellnesium",
+    "slug": "wellnesium",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,7 +18,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tanishakholiya.wellnesium"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,6 +29,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cbece5c8-a6b1-4e60-a5bd-a3e97ab82973"
+      }
     }
   }
 }
