@@ -17,8 +17,6 @@ export default function Onboarding({navigation}) {
     const [firstName, setFName]= useState("");
     const [lastName, setLName]= useState("");
     const [age, setAge] = useState(0);
-    const [mental, setMental] = useState([]);
-    const [physical, setPhysical] = useState([]);
     onAuthStateChanged(auth, (user) => {
         if (user) {
             const uid = user.uid;
@@ -40,8 +38,6 @@ export default function Onboarding({navigation}) {
             lastName: lastName,
             age: age,
             email: email,
-            mentalHealth: mental,
-            physicalHealth: physical,
         }).then(navigation.navigate("Home"))
     }
         catch(e) {

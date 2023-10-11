@@ -5,15 +5,14 @@ import { Text, StyleSheet, View, TouchableOpacity, TextInput, ScrollView, Alert 
 import RadioGroup from 'react-native-radio-buttons-group'; 
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../../firebase';
-import TimePicker from 'react-native-simple-time-picker';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
+// import Select from 'react-select'
 
 export default function HeadacheLog({route, navigation}) {
     const [headacheFields, setHeadacheFields] = useState(route.params.headacheFields);
     const [id, setId] = useState("");
     const [disabled, setDisabled] = useState(true);
-    const [selectedHours, setSelectedHours] = useState(0);
-    const [selectedMinutes, setSelectedMinutes] = useState(0);
-
+    const [date, setDate] = useState(new Date())
     onAuthStateChanged(auth, (user) => {
         if (user) {
             const uid = user.uid;
@@ -42,8 +41,11 @@ export default function HeadacheLog({route, navigation}) {
         var name = radioButtonsArray.find(({selected})=>selected===true).label;
         let temp = [...headacheFields];
         temp[index] = name;
+        temp[0] = new Date();
+        temp[1] = new Date();
+        temp[5] = new Date();
         setHeadacheFields(temp);
-        isDisabled();
+        isDisabled(temp);
     }
     function onPressReliefs(radioButtonsArray, index) {
         setSelectedReliefs(radioButtonsArray);
@@ -51,7 +53,7 @@ export default function HeadacheLog({route, navigation}) {
         let temp = [...headacheFields];
         temp[index] = name;
         setHeadacheFields(temp);
-        isDisabled();
+        isDisabled(temp);
     }
     function onPressRadioButton(radioButtonsArray, index) {
         setRadioButtons(radioButtonsArray);
@@ -59,7 +61,7 @@ export default function HeadacheLog({route, navigation}) {
         let temp = [...headacheFields];
         temp[index] = name;
         setHeadacheFields(temp);
-        isDisabled();
+        isDisabled(temp);
     }
 
     let fields = route.params.headacheFields;
@@ -69,21 +71,12 @@ export default function HeadacheLog({route, navigation}) {
         let temp = [...headacheFields];
         temp[index] = event;
         setHeadacheFields(temp);
-        isDisabled();
+        isDisabled(temp);
     }
 
-    const setHours = (hours) => {
-        setSelectedHours(hours)
-        handleChange();
-    }
-    const setMinutes = (mins) => {
-        setSelectedMinutes(mins)
-        handleChange();
-    }
-
-    const isDisabled = () => {
+    const isDisabled = (temp) => {
         let dis = false;
-        headacheFields.map((val) => {
+        temp.map((val) => {
             if(val.name != undefined) {
                 dis = true;
             }
@@ -93,13 +86,18 @@ export default function HeadacheLog({route, navigation}) {
 
     const addHeadache = async () => {
         try{
+            let time1 = headacheFields[0].toLocaleTimeString()
+            time1 = time1.substring(0, time1.indexOf(':', 3)) + time1.substring(time1.indexOf(' '))
+            let time2 = headacheFields[1].toLocaleTimeString()
+            time2 = time2.substring(0, time2.indexOf(':', 3)) + time2.substring(time2.indexOf(' '))
             const data = {
-                startTime: headacheFields[0],
-                endTime: headacheFields[1],
+                
+                startTime: time1,
+                endTime: time2,
                 triggers: headacheFields[2],
                 reliefs: headacheFields[3],
                 position: headacheFields[4],
-                date: new Date().toDateString(),
+                date: headacheFields[5].toDateString().substring(headacheFields[5].toDateString().indexOf(' ')+1),
             }
             const docRef = await addDoc(collection(db, "users", id, "logs"), {
             data }).then(navigation.navigate("Headache Tracker", {headacheFields: fields}))
@@ -122,21 +120,42 @@ export default function HeadacheLog({route, navigation}) {
                 automaticallyAdjustKeyboardInsets={true}
             >
         {fields.map((field, index) => {
-            if(field['type']=='time') return(
-                <View style={styles.inputContainer}>
-                    <TimePicker
-                    selectedHours={selectedHours}
-                    selectedMinutes={selectedMinutes}
-                    onChange={(hours, minutes) => {
-                        setHours(hours);
-                        setMinutes(minutes);
-                    }}
-                    />
+            if(field['type']=='time') {
+                let date = new Date();
+                if(headacheFields[index].name == undefined) {
+                    date = (headacheFields[index])
+                }
+                return(
+                <View style={styles.timeContainer} key={index}>
+                    <Text style={styles.text}> {field['name']} </Text>
+                    {/* <TextInput
+                        placeholder="Enter here" 
+                        onChangeText={(text)=>{handleChange(index, text)}}
+                        style={{borderWidth:2, borderColor:'skyBlue', marginTop:5}}/> */}
+                        
+                    <RNDateTimePicker display="default" mode="time" value={date} onChange={(event, text)=>{
+                        handleChange(index, text)
+                        }}/>
                 </View>
-            )
+            )}
+            else if(field['type']=='date'){
+                let date = new Date();
+                if(headacheFields[index].name == undefined) {
+                    date = (headacheFields[index])
+                }
+                return(
+                <View style={styles.timeContainer} key={index}>
+                    <Text style={styles.text}> {field['name']} </Text>
+                    {/* <TextInput
+                        placeholder="Enter here" 
+                        onChangeText={(text)=>{handleChange(index, text)}}
+                        style={{borderWidth:2, borderColor:'skyBlue', marginTop:5}}/> */}
+                    <RNDateTimePicker display="default" mode="date" value={date} onChange={(event, selectedDate)=>{handleChange(index, selectedDate)}} maximumDate={new Date()}/>
+                </View>
+            )}
             else if(field['type'] == 'radioButton') {
                 return(
-                    <View style={styles.inputContainer}>
+                    <View style={styles.inputContainer} key={index}>
                         <Text style={styles.text}> {field['name']} </Text>
                         <RadioGroup 
                         radioButtons={radioButtons} 
@@ -148,7 +167,7 @@ export default function HeadacheLog({route, navigation}) {
             else if(field['type'] == 'multiselect') {
                 if(field['name'] == 'Triggers') {
                 return(
-                    <View style={styles.inputContainer}>
+                    <View style={styles.inputContainer} key={index}>
                         <Text style={styles.text}> {field['name']} </Text>
                         <RadioGroup 
                         radioButtons={selectedTriggers} 
@@ -160,7 +179,7 @@ export default function HeadacheLog({route, navigation}) {
             }
             else if(field['name'] == 'Relief Measures') {
                 return(
-                    <View style={styles.inputContainer}>
+                    <View style={styles.inputContainer} key={index}>
                         <Text style={styles.text}> {field['name']} </Text>
                         <RadioGroup 
                         radioButtons={selectedReliefs} 
@@ -230,4 +249,10 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 16,
       },
+      timeContainer: {
+        display: 'flex',
+        flex: 1,
+        flexDirection: 'row',
+        marginBottom: 4,
+      }
   });

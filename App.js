@@ -27,6 +27,7 @@ import HeadacheInfo from './components/headache/headacheInfo';
 import { Alert } from 'react-native-web';
 import WorkoutLogs from './components/workouts/workoutLogs';
 import WorkoutInfo from './components/workouts/workoutLogInfo';
+import ChatBot from './Chatbot';
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +53,7 @@ export default function App() {
         <Stack.Screen name="WorkoutLogs" component={WorkoutLogs}/>
         <Stack.Screen name="WorkoutInfo" component={WorkoutInfo} />
         <Stack.Screen name="Todo" component={Todo} />
+        <Stack.Screen name="Chatbot" component={ChatBot} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -82,6 +84,7 @@ function Home({navigation}) {
     await getDoc(docRef).then((headacheData) => {
       const data = headacheData.data().headacheData;
       setHeadacheFields(data.map((field) => getData(field)));
+      console.log(headacheFields)
     });
     docRef = doc(db, "fields", "journal");
     await getDoc(docRef).then((journalData) => {
@@ -105,10 +108,10 @@ function Home({navigation}) {
       setSignedIn(false);
     }
   });
-  if(signedIn) {
+ // if(signedIn) {
     return(
       <View style={{ flex:1, justifyContent: 'space-evenly', alignItems: 'center', backgroundColor: '#b4cebd' }}>
-      <Text style={{fontSize:80}}>wellnesium</Text>
+      <Text style={styles.text}>wellnesium</Text>
       {/* <Button title="Memories" color='#172c42' onPress={()=>navigation.navigate('Memories')}/> */}
       <TouchableOpacity onPress={()=>{navigation.navigate("Journal", {journalMorningFields: journalMorningFields, journalNightFields: journalNightFields})}} style={styles.button}>
         <Text style={styles.buttonText}>Journal</Text>
@@ -122,26 +125,22 @@ function Home({navigation}) {
       <TouchableOpacity onPress={()=>navigation.navigate('Todo')} style={styles.button}>
         <Text style={styles.buttonText}>Todo</Text>
       </TouchableOpacity>
+      {signedIn && 
       <TouchableOpacity onPress={()=>auth.signOut()} style={styles.button}>
         <Text style={styles.buttonText}>Logout</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>}
+      {!signedIn &&  
+          <>
+          <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>navigation.navigate('Signup')} style={styles.button}>
+            <Text style={styles.buttonText}>Signup</Text>
+          </TouchableOpacity>
+          </>}
       </View>
     )
   }
-  else {
-    return(
-      <View style={{ flex:1, justifyContent: 'space-evenly', alignItems: 'center', backgroundColor: '#b4cebd' }}>
-      <Text style={{fontSize:80}}>wellnesium</Text>
-      <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={()=>navigation.navigate('Signup')} style={styles.button}>
-        <Text style={styles.buttonText}>Signup</Text>
-      </TouchableOpacity>
-      </View>
-    )
-  }
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -149,11 +148,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 15,
   },
+  text: {
+    fontWeight: "400",
+    fontSize: 40,
+    marginBottom: 10,
+},
   button: {
     backgroundColor: "#172c42",
     padding: 15,
     borderRadius: 10,
+    marginTop: 5,
     alignItems: "center",
   },
   buttonText: {

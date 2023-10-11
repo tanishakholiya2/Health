@@ -69,7 +69,7 @@ export default function WorkoutJournal({route, navigation}) {
             >
             {fields.map((field, index) => {
                 if(field['type']=='rating') return(
-                    <View>
+                    <View key={index}>
                         <Text style={styles.text}> {field['name']} </Text>
                         {/* <TextInput
                             placeholder="Enter here" 
@@ -85,7 +85,7 @@ export default function WorkoutJournal({route, navigation}) {
                     </View>
                 )
                 if(field['type']=='textInput') return(
-                    <View style={styles.inputContainer}>
+                    <View style={styles.inputContainer} key={index}>
                         <Text style={styles.text}> {field['name']} </Text>
                         <TextInput
                             placeholder="Enter here" 

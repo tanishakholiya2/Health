@@ -30,6 +30,7 @@ export default function JournalLogHome({route, navigation}) {
     }, [id, db])
 
     const merge = (arr) => {
+        console.log(arr);
         let merged = "";
         arr.map((val)=>{
             merged += val + ', '
@@ -52,7 +53,7 @@ export default function JournalLogHome({route, navigation}) {
         
         {entries.map((entry, index) => {
             return(
-                <TouchableOpacity onPress={()=>{navigation.navigate("JournalEntries", {entry})}} style={styles.button}>
+                <TouchableOpacity onPress={()=>{navigation.navigate("JournalEntries", {entry})}} style={styles.button} key={index}>
                     <Text style={styles.buttonText}>{entry.date} </Text>
                 </TouchableOpacity>
             )

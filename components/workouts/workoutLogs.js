@@ -5,7 +5,6 @@ import { Text, ScrollView, StyleSheet, View, TouchableOpacity } from "react-nati
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../../firebase';
 
-
 export default function WorkoutLogs({route, navigation}) {
     const [entries, setEntries] = useState([]);
     const [id, setId] = useState("");
@@ -51,7 +50,7 @@ export default function WorkoutLogs({route, navigation}) {
         </View>
         {entries.map((entry, index) => {
             return(
-                <TouchableOpacity onPress={()=>{navigation.navigate("WorkoutInfo", {workout: entry})}} style={styles.button}>
+                <TouchableOpacity key={index} onPress={()=>{navigation.navigate("WorkoutInfo", {workout: entry})}} style={styles.button}>
                     <Text style={styles.buttonText}>{entry.date} </Text>
                 </TouchableOpacity>
             )

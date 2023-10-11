@@ -14,6 +14,7 @@ export default function Journal({route, navigation}) {
     let fieldsN = route.params.journalNightFields;
     const [id, setId] = useState("");
     const [disabled, setDisabled] = useState(true);
+    const [signedIn, setSignedIn] = useState(false);
 
     const clearData = () => {
         setResponses([]);
@@ -25,6 +26,7 @@ export default function Journal({route, navigation}) {
         if (user) {
             const uid = user.uid;
             setId(uid);
+            setSignedIn(true);
         }
       });
 
@@ -42,7 +44,7 @@ export default function Journal({route, navigation}) {
             temp[index] = initial;
             setJournalMFields(temp);
             setResponses(temp);
-            isDisabled();
+            isDisabled(temp);
         }
         if(mode === 'night') {
             let temp = [...journalNightFields];
@@ -56,25 +58,17 @@ export default function Journal({route, navigation}) {
             temp[index] = initial;
             setJournalNFields(temp);
             setResponses(temp);
-            isDisabled();
+            isDisabled(temp);
         }
     }
 
-    const isDisabled = () => {
+    const isDisabled = (temp) => {
         let dis = false;
-        if(mode === 'day') {
-            journalMorningFields.map((val) => {
-                if(val.name != undefined) {
-                    dis = true;
-                }
-            })
-        }
-        else {
-        journalNightFields.map((val)=>{
+        temp.map((val) => {
             if(val.name != undefined) {
                 dis = true;
             }
-        })}
+        })
         setDisabled(dis);
     }
 
@@ -152,8 +146,21 @@ export default function Journal({route, navigation}) {
             </View>
             {mode === 'day' ? <View style={styles.container}>
             {fieldsM.map((field, index) => {
+                let x = (responses[index] != undefined ? true : false)
+                let x1 = false;
+                let x2 = false;
+                if(x) {
+                    x1 = responses[index][0] != undefined ? true : false
+                    if(x1) {
+                        x1 = responses[index][0] != ""
+                    }
+                    x2 = responses[index][1] != undefined ? true : false
+                    if(x2) {
+                        x2 = responses[index][1] != ""
+                    }
+                }
                 if(field['type']=='textInput3') return(
-                    <View>
+                    <View key={index}>
                     <Text style = {{color: '#083316', fontSize: 20, marginBottom: 8}}> {field['name']}</Text>
                     <TextInput
                     placeholder="Enter here" 
@@ -166,17 +173,26 @@ export default function Journal({route, navigation}) {
                     onChangeText={(text)=>handleChange(index, text, 1)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5}}
                     value={responses[index] != undefined ? responses[index][1] : ""}
+                    editable={x1}
                     />
                     <TextInput
                     placeholder="Enter here" 
                     onChangeText={(text)=>handleChange(index, text, 2)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5}}
                     value={responses[index] != undefined ? responses[index][2] : ""}
+                    editable={x2}
                     />
                     </View>
                 )
-                if(field['type']=='textInput5') return(
-                    <View>
+                if(field['type']=='textInput5'){ 
+                    let x3 = false;
+                    let x4 = false;
+                    if(x) {
+                        x3 = responses[index][2] != undefined ? true : false
+                        x4 = responses[index][3] != undefined ? true : false
+                    }
+                    return(
+                    <View key={index}>
                     <Text style = {{color: '#083316', fontSize: 20, marginBottom: 8}}> {field['name']}</Text>
                     <TextInput
                     placeholder="Enter here" 
@@ -189,32 +205,49 @@ export default function Journal({route, navigation}) {
                     onChangeText={(text)=>handleChange(index, text, 1)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5, }}
                     value={responses[index] != undefined ? responses[index][1] : ""}
+                    editable={x1}
                     />
                     <TextInput
                     placeholder="Enter here" 
                     onChangeText={(text)=>handleChange(index, text, 2)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5, }}
                     value={responses[index] != undefined ? responses[index][2] : ""}
+                    editable={x2}
                     />
                     <TextInput
                     placeholder="Enter here" 
                     onChangeText={(text)=>handleChange(index, text, 3)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5, }}
                     value={responses[index] != undefined ? responses[index][3] : ""}
+                    editable={x3}
                     />
                     <TextInput
                     placeholder="Enter here" 
                     onChangeText={(text)=>handleChange(index, text, 4)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5, }}
                     value={responses[index] != undefined ? responses[index][4] : ""}
+                    editable={x4}
                     />
                     </View>
-                )
+                )}
             })}
             </View>:<View style={styles.container}>
             {fieldsN.map((field, index) => {
+                let x = (responses[index] != undefined ? true : false)
+                let x1 = false;
+                let x2 = false;
+                if(x) {
+                    x1 = responses[index][0] != undefined ? true : false
+                    if(x1) {
+                        x1 = responses[index][0] != ""
+                    }
+                    x2 = responses[index][1] != undefined ? true : false
+                    if(x2) {
+                        x2 = responses[index][1] != ""
+                    }
+                }
                 if(field['type']=='textInput3') return(
-                    <View>
+                    <View key={index}>
                     <Text style = {{color: '#083316', fontSize: 20, marginBottom: 8}}> {field['name']}</Text>
                     <TextInput
                     placeholder="Enter here" 
@@ -227,26 +260,35 @@ export default function Journal({route, navigation}) {
                     onChangeText={(text)=>handleChange(index, text, 1)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5}}
                     value={responses[index] != undefined ? responses[index][1] : ""}
+                    editable={x1}
                     />
                     <TextInput
                     placeholder="Enter here" 
                     onChangeText={(text)=>handleChange(index, text, 2)}
                     style={{borderWidth:2, borderColor:'skyBlue', marginTop:5}}
                     value={responses[index] != undefined ? responses[index][2] : ""}
+                    editable={x2}
                     />
                     </View>
                 )
             })}</View>}
             <View style={styles.container}>
             <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={()=>{addJournal()}} style={styles.button} disabled={disabled}>
-                <Text style={styles.buttonText}>Enter</Text>
+            {!signedIn && 
+            <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
+                <Text style={styles.buttonText}>Login to save</Text>
             </TouchableOpacity>
-            </View>
-            <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={()=>{navigation.navigate("JournalLogHome")}} style={styles.button}>
-                <Text style={styles.buttonText}>See previous Entries</Text>
-            </TouchableOpacity>
+            }
+            {signedIn && <><View>
+                                <TouchableOpacity onPress={() => { addJournal(); } } style={styles.button} disabled={disabled}>
+                                    <Text style={styles.buttonText}>Enter</Text>
+                                </TouchableOpacity>
+                            </View><View style={styles.buttonContainer}>
+                                    <TouchableOpacity onPress={() => { navigation.navigate("JournalLogHome"); } } style={styles.button}>
+                                        <Text style={styles.buttonText}>See previous Entries</Text>
+                                    </TouchableOpacity>
+                                </View></>}
+            
             </View>
             </View>
             </ScrollView>

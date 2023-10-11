@@ -12,10 +12,12 @@ export default function Todo({route, navigation}) {
     const [todos, setToDos] = useState([])
     const [id, setId] = useState("");
     const [add, setAdd] = useState("");
+    const [signedIn, setSignedIn] = useState(false);
     onAuthStateChanged(auth, (user) => {
         if (user) {
             const uid = user.uid;
             setId(uid);
+            setSignedIn(true);
         }
       });
     const createTodo = () => {
@@ -80,6 +82,7 @@ export default function Todo({route, navigation}) {
         setToDos(temp);   
     }
     useEffect(()=>{
+        if(signedIn)
             fetchData();
     }, [id])
     
@@ -99,7 +102,7 @@ export default function Todo({route, navigation}) {
         {
             if(!todo.completed && todo.priority) {
             return(
-            <View style={{display:"flex", flexDirection: "row", alignContent: "center", justifyContent: "center"}}>
+            <View key={index} style={{display:"flex", flexDirection: "row", alignContent: "center", justifyContent: "center"}}>
             {todo.priority ? <Icon name={'star'} style={[styles.myStarStyle]} size={20} onPress={()=>{handlePriorityChange(index)}}/> : <Icon name={'star-outline'} size={20} style={[styles.myStarStyle, styles.myEmptyStarStyle]} onPress={()=>{handlePriorityChange(index)}}/> }
             <CheckBox
                 title={todo.title}
@@ -114,7 +117,7 @@ export default function Todo({route, navigation}) {
         {
             if(!todo.completed && !todo.priority) {
             return(
-            <View style={{display:"flex", flexDirection: "row", alignContent: "center", justifyContent: "center"}}>
+            <View key={index} style={{display:"flex", flexDirection: "row", alignContent: "center", justifyContent: "center"}}>
             {todo.priority ? <Icon name={'star'} style={[styles.myStarStyle]} size={20} onPress={()=>{handlePriorityChange(index)}}/> : <Icon name={'star-outline'} size={20} style={[styles.myStarStyle, styles.myEmptyStarStyle]} onPress={()=>{handlePriorityChange(index)}}/> }
             <CheckBox
                 title={todo.title}
@@ -146,6 +149,10 @@ export default function Todo({route, navigation}) {
             <TouchableOpacity onPress={createTodo} disabled={add.length===0}>
                 <Text style={styles.buttonText}>add</Text>
             </TouchableOpacity>
+            {!signedIn && 
+            <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
+                <Text style={styles.buttonText}>Login to save</Text>
+            </TouchableOpacity>}
             </View>
             </ScrollView>
         </View>

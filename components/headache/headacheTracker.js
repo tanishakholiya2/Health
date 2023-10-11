@@ -9,10 +9,12 @@ export default function HeadacheTracker({route, navigation}) {
     const [headaches, setHeadaches] = useState([]);
     const headacheFields = route.params.headacheFields;
     const [id, setId] = useState("");
+    const [signedIn, setSignedIn] = useState(false);
     onAuthStateChanged(auth, (user) => {
         if (user) {
             const uid = user.uid;
             setId(uid);
+            setSignedIn(true);
         }
       });
 
@@ -48,9 +50,14 @@ export default function HeadacheTracker({route, navigation}) {
                 automaticallyAdjustKeyboardInsets={true}
             >
         <View style={styles.buttonContainer}>
+        {!signedIn && 
+            <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
+                <Text style={styles.buttonText}>Login to view previous headaches and log headaches</Text>
+        </TouchableOpacity>}
+        {signedIn && 
         <TouchableOpacity onPress={()=>{navigation.navigate("Headache", {headacheFields})}} style={styles.button}>
             <Text style={styles.buttonText}> Log Headache </Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
         </View>
         
         {headaches.map((headache, index) => {

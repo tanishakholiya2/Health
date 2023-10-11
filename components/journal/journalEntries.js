@@ -62,6 +62,7 @@ export default function JournalEntries({route, navigation}) {
         <Text style={styles.infoText}> Positive affirmations: {merge(entry.positiveAffs)} </Text>
     </View>:<View style={styles.textContainer}>
         <Text style={styles.infoText}> type: {entry.type} </Text>
+        <Text style={styles.infoText}> Good things that happened: {merge(entry.goodThings)} </Text>
         <Text style={styles.infoText}> Things that could have gone better: {merge(entry.better)} </Text>
         <Text style={styles.infoText}> Goals met: {merge(entry.goals)} </Text>
         <Text style={styles.infoText}> Self care activities: {merge(entry.selfCare)} </Text>

@@ -7,6 +7,15 @@ import { auth } from "../../firebase";
 
 export default function Workouts({route, navigation}) {
     const workoutFields = route.params.workoutFields;
+    const [id, setId] = useState("");
+    const [signedIn, setSignedIn] = useState(false);
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const uid = user.uid;
+            setId(uid);
+            setSignedIn(true);
+        }
+      });
     return(
         <View style={styles.container}>
           <ScrollView
@@ -20,9 +29,14 @@ export default function Workouts({route, navigation}) {
           <TouchableOpacity onPress={()=>{navigation.navigate("WorkoutTimer")}} style={styles.button}>
             <Text style={styles.buttonText}>Workout Timer</Text>
           </TouchableOpacity>
+          {!signedIn && 
+            <TouchableOpacity onPress={()=>navigation.navigate('Login')} style={styles.button}>
+                <Text style={styles.buttonText}>Login to view previous headaches and log headaches</Text>
+          </TouchableOpacity>}
+          {signedIn && 
           <TouchableOpacity onPress={()=>{navigation.navigate("WorkoutJournal", {workoutFields})}} style={styles.button}>
             <Text style={styles.buttonText}>Workout Logs</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>}
           </ScrollView>
         </View>
     )
