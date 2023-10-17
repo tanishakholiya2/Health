@@ -28,6 +28,7 @@ import { Alert } from 'react-native-web';
 import WorkoutLogs from './components/workouts/workoutLogs';
 import WorkoutInfo from './components/workouts/workoutLogInfo';
 import ChatBot from './Chatbot';
+import Settings from './Settings';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,7 @@ export default function App() {
         <Stack.Screen name="WorkoutInfo" component={WorkoutInfo} />
         <Stack.Screen name="Todo" component={Todo} />
         <Stack.Screen name="Chatbot" component={ChatBot} />
+        <Stack.Screen name="Settings" component={Settings} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -126,8 +128,8 @@ function Home({navigation}) {
         <Text style={styles.buttonText}>Todo</Text>
       </TouchableOpacity>
       {signedIn && 
-      <TouchableOpacity onPress={()=>auth.signOut()} style={styles.button}>
-        <Text style={styles.buttonText}>Logout</Text>
+      <TouchableOpacity onPress={()=>navigation.navigate("Settings")} style={styles.button}>
+        <Text style={styles.buttonText}>Settings</Text>
       </TouchableOpacity>}
       {!signedIn &&  
           <>

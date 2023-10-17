@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from './firebase';
 
-
 export default function Login({navigation}) {
     const [email, setEmail] = useState("");
     const [password,setPassword] = useState("");
     const signin = () => {
-        signInWithEmailAndPassword(auth, email, password).then(navigation.navigate("Home"));
+        signInWithEmailAndPassword(auth, email, password).then(navigation.navigate("Home")).catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          Alert.alert(errorMessage);
+  });
     }
     return(
         <>
